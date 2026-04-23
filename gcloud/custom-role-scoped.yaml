@@ -1,0 +1,76 @@
+# Consumed by `gcloud iam roles create entHomeDeployerScoped --file=<this>`.
+title: "Ent Home Deployer (Scoped)"
+description: "Permissions for Ent Home to manage Ent-prefixed resources in services that support IAM resource-name conditions."
+stage: "GA"
+includedPermissions:
+  # Cloud Storage (per-bucket, per-object)
+  - storage.buckets.delete
+  - storage.buckets.get
+  - storage.buckets.getIamPolicy
+  - storage.buckets.setIamPolicy
+  - storage.buckets.update
+  - storage.objects.create
+  - storage.objects.delete
+  - storage.objects.get
+  - storage.objects.getIamPolicy
+  - storage.objects.list
+  - storage.objects.setIamPolicy
+  - storage.objects.update
+  # Secret Manager (per-secret)
+  - secretmanager.secrets.delete
+  - secretmanager.secrets.get
+  - secretmanager.secrets.getIamPolicy
+  - secretmanager.secrets.setIamPolicy
+  - secretmanager.secrets.update
+  - secretmanager.versions.access
+  - secretmanager.versions.add
+  - secretmanager.versions.destroy
+  - secretmanager.versions.disable
+  - secretmanager.versions.enable
+  - secretmanager.versions.get
+  - secretmanager.versions.list
+  # Pub/Sub (per-topic, per-subscription)
+  - pubsub.subscriptions.consume
+  - pubsub.subscriptions.delete
+  - pubsub.subscriptions.get
+  - pubsub.subscriptions.getIamPolicy
+  - pubsub.subscriptions.setIamPolicy
+  - pubsub.subscriptions.update
+  - pubsub.topics.attachSubscription
+  - pubsub.topics.delete
+  - pubsub.topics.detachSubscription
+  - pubsub.topics.get
+  - pubsub.topics.getIamPolicy
+  - pubsub.topics.publish
+  - pubsub.topics.setIamPolicy
+  - pubsub.topics.update
+  # Artifact Registry (per-repo)
+  - artifactregistry.repositories.delete
+  - artifactregistry.repositories.deleteArtifacts
+  - artifactregistry.repositories.downloadArtifacts
+  - artifactregistry.repositories.get
+  - artifactregistry.repositories.getIamPolicy
+  - artifactregistry.repositories.setIamPolicy
+  - artifactregistry.repositories.update
+  - artifactregistry.repositories.uploadArtifacts
+  # IAM Service Accounts (per-SA)
+  - iam.serviceAccounts.actAs
+  - iam.serviceAccounts.delete
+  - iam.serviceAccounts.get
+  - iam.serviceAccounts.getIamPolicy
+  - iam.serviceAccounts.setIamPolicy
+  - iam.serviceAccounts.update
+  # Cloud DNS (per-zone)
+  - dns.changes.create
+  - dns.changes.get
+  - dns.changes.list
+  - dns.managedZones.delete
+  - dns.managedZones.get
+  - dns.managedZones.getIamPolicy
+  - dns.managedZones.setIamPolicy
+  - dns.managedZones.update
+  - dns.resourceRecordSets.create
+  - dns.resourceRecordSets.delete
+  - dns.resourceRecordSets.get
+  - dns.resourceRecordSets.list
+  - dns.resourceRecordSets.update
