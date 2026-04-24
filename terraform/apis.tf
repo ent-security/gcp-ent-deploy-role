@@ -23,6 +23,7 @@ locals {
     "redis.googleapis.com",                # Memorystore Redis
     "secretmanager.googleapis.com",        # Secrets
     "servicenetworking.googleapis.com",    # VPC peering for Cloud SQL private IP
+    "serviceusage.googleapis.com",         # Needed by tenant tofu to inspect which APIs are enabled
     "sqladmin.googleapis.com",             # Cloud SQL
     "storage.googleapis.com",              # GCS buckets
   ]
