@@ -193,7 +193,6 @@ resource "google_project_iam_custom_role" "unscoped" {
     "aiplatform.endpoints.get",
     "aiplatform.models.list",
     "aiplatform.models.get",
-    "aiplatform.models.predict",
 
     # --- Service Networking (VPC peering for Cloud SQL private IP) ---
     "servicenetworking.services.addPeering",
