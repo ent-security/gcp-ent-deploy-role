@@ -199,12 +199,16 @@ bind_scoped \
 bind_scoped \
   "ent-artifact-repos" \
   "resource.type == 'artifactregistry.googleapis.com/Repository' && resource.name.extract('/repositories/{name}').startsWith('${TENANT_PREFIX}')"
-bind_scoped \
-  "ent-service-accounts" \
-  "resource.type == 'iam.googleapis.com/ServiceAccount' && resource.name.extract('/serviceAccounts/{email}').startsWith('${TENANT_PREFIX}')"
+# iam.serviceAccounts verbs are bound unconditionally: GCP substitutes numeric
+# unique IDs (not emails) into resource.name, so a name-prefix condition can
+# never match. The tenant project itself is the blast-radius boundary.
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --role="$scoped_role_name" \
+  --member="$deployer_member" \
+  --condition=None >/dev/null
 bind_scoped \
   "ent-dns-zones" \
-  "resource.type == 'dns.googleapis.com/ManagedZone' && resource.name.extract('/managedZones/{name}').startsWith('${TENANT_PREFIX}')"
+  "resource.type == 'dns.googleapis.com/ManagedZone' && resource.name.extract('/managedzones/{name}').startsWith('${TENANT_PREFIX}')"
 
 cat <<OUTPUT
 

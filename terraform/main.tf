@@ -139,16 +139,16 @@ resource "google_project_iam_member" "deployer_scoped_artifacts" {
   }
 }
 
+# IAM service-account verbs must be granted unconditionally within the project:
+# GCP's IAM condition engine substitutes the service account's numeric unique ID
+# (e.g. "projects/-/serviceAccounts/108685713668969420602") into resource.name, not
+# the email. A name-prefix condition like startsWith("${var.tenant_name_prefix_glob}")
+# can never match a numeric ID. The tenant project itself is the blast-radius
+# boundary for these verbs.
 resource "google_project_iam_member" "deployer_scoped_service_accounts" {
   project = var.project_id
   role    = google_project_iam_custom_role.scoped.name
   member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
-
-  condition {
-    title       = "Scoped to Ent-prefixed service accounts"
-    description = "Limits iam.serviceAccounts verbs to SAs whose account ID starts with the Ent tenant prefix."
-    expression  = "resource.type == \"iam.googleapis.com/ServiceAccount\" && resource.name.extract(\"/serviceAccounts/{email}\").startsWith(\"${var.tenant_name_prefix_glob}\")"
-  }
 }
 
 resource "google_project_iam_member" "deployer_scoped_dns" {
@@ -158,7 +158,7 @@ resource "google_project_iam_member" "deployer_scoped_dns" {
 
   condition {
     title       = "Scoped to Ent-prefixed DNS managed zones"
-    description = "Limits dns verbs to managed zones whose name starts with the Ent tenant prefix."
-    expression  = "resource.type == \"dns.googleapis.com/ManagedZone\" && resource.name.extract(\"/managedZones/{name}\").startsWith(\"${var.tenant_name_prefix_glob}\")"
+    description = "Limits dns verbs to managed zones whose name starts with the Ent tenant prefix. GCP's IAM condition engine lowercases the DNS resource path to /managedzones/, so that casing must be used here."
+    expression  = "resource.type == \"dns.googleapis.com/ManagedZone\" && resource.name.extract(\"/managedzones/{name}\").startsWith(\"${var.tenant_name_prefix_glob}\")"
   }
 }

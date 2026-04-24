@@ -172,7 +172,7 @@ Summary:
 | Pub/Sub topics | Yes (topic-name prefix) | `create` / `list` at project scope. |
 | Pub/Sub subscriptions | Yes (subscription-name prefix) | `create` / `list` at project scope. |
 | Artifact Registry | Yes (repo-name prefix) | `create` / `list` at project scope. |
-| IAM Service Accounts | Yes (SA-email prefix) | `create` / `list` at project scope. |
+| IAM Service Accounts | No (unconditional, project-scoped) | GCP's IAM Conditions use service accounts' numeric unique IDs in `resource.name`, so an email-prefix condition can never match. The tenant project boundary is the scope. |
 | Cloud DNS managed zones | Yes (zone-name prefix) | `create` / `list` at project scope. |
 | Compute (VPC, subnets, disks, addresses) | No | Enumerated verbs only (`compute.networks.*`, `compute.subnetworks.*`, etc.); not the full `roles/compute.admin`. |
 | GKE | No | `container.clusters.*`, `container.operations.*` only. |
