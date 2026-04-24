@@ -6,8 +6,13 @@
 # Usage:
 #   PROJECT_ID=my-gcp-project \
 #   ENT_HOME_AWS_ACCOUNT_ID=051759900972 \
-#   ENT_HOME_AWS_ROLE_NAME=HomeProdAssumeAdmin \
+#   ENT_HOME_AWS_ROLE_NAMES="HomeProdAssumeAdmin prod-uswest2-eks-pi-1-abcd1234" \
 #   ./bootstrap.sh
+#
+# ENT_HOME_AWS_ROLE_NAMES is a whitespace-separated list. Include every role
+# Ent Home may assume against this project: the EKS Pod Identity role used by
+# ent-home-api at runtime (for deployments) and any human-admin role (for
+# manual bootstrap or troubleshooting).
 #
 # Optional overrides:
 #   DEPLOYER_SA_ID         (default: ent-home-deployer)
@@ -22,7 +27,7 @@ set -euo pipefail
 
 : "${PROJECT_ID:?PROJECT_ID is required}"
 : "${ENT_HOME_AWS_ACCOUNT_ID:?ENT_HOME_AWS_ACCOUNT_ID is required}"
-: "${ENT_HOME_AWS_ROLE_NAME:?ENT_HOME_AWS_ROLE_NAME is required}"
+: "${ENT_HOME_AWS_ROLE_NAMES:?ENT_HOME_AWS_ROLE_NAMES is required (whitespace-separated list)}"
 
 DEPLOYER_SA_ID="${DEPLOYER_SA_ID:-ent-home-deployer}"
 WIF_POOL_ID="${WIF_POOL_ID:-ent-home-pool}"
@@ -34,6 +39,12 @@ ENABLE_APIS="${ENABLE_APIS:-true}"
 
 if ! [[ "$ENT_HOME_AWS_ACCOUNT_ID" =~ ^[0-9]{12}$ ]]; then
   echo "ENT_HOME_AWS_ACCOUNT_ID must be a 12-digit AWS account ID." >&2
+  exit 1
+fi
+
+read -r -a role_name_array <<< "$ENT_HOME_AWS_ROLE_NAMES"
+if [[ ${#role_name_array[@]} -eq 0 ]]; then
+  echo "ENT_HOME_AWS_ROLE_NAMES must contain at least one role name." >&2
   exit 1
 fi
 
@@ -86,19 +97,32 @@ else
     --description="Allows Ent Home on AWS to deploy tenant infrastructure into this GCP project."
 fi
 
+# google.subject is mapped to the extracted role name rather than the full ARN:
+# GCP caps google.subject at 127 bytes, and an ARN like
+# "arn:aws:sts::<12>:assumed-role/<role>/<session>" easily exceeds that when
+# EKS Pod Identity generates long session names.
+attribute_mapping="google.subject=assertion.arn.extract('assumed-role/{role}/'),attribute.aws_role=assertion.arn.extract('assumed-role/{role}/'),attribute.aws_account=assertion.account"
+attribute_condition="attribute.aws_account == '$ENT_HOME_AWS_ACCOUNT_ID'"
+
 log "Creating AWS provider in the pool: $WIF_PROVIDER_ID"
 if gcloud iam workload-identity-pools providers describe "$WIF_PROVIDER_ID" \
     --project="$PROJECT_ID" --location=global \
     --workload-identity-pool="$WIF_POOL_ID" >/dev/null 2>&1; then
-  echo "Provider already exists, skipping."
+  echo "Provider already exists, updating attribute mapping and condition."
+  gcloud iam workload-identity-pools providers update-aws "$WIF_PROVIDER_ID" \
+    --project="$PROJECT_ID" \
+    --location=global \
+    --workload-identity-pool="$WIF_POOL_ID" \
+    --attribute-mapping="$attribute_mapping" \
+    --attribute-condition="$attribute_condition"
 else
   gcloud iam workload-identity-pools providers create-aws "$WIF_PROVIDER_ID" \
     --project="$PROJECT_ID" \
     --location=global \
     --workload-identity-pool="$WIF_POOL_ID" \
     --account-id="$ENT_HOME_AWS_ACCOUNT_ID" \
-    --attribute-mapping="google.subject=assertion.arn,attribute.aws_role=assertion.arn.extract('assumed-role/{role}/'),attribute.aws_account=assertion.account" \
-    --attribute-condition="attribute.aws_account == '$ENT_HOME_AWS_ACCOUNT_ID'"
+    --attribute-mapping="$attribute_mapping" \
+    --attribute-condition="$attribute_condition"
 fi
 
 log "Creating deployer service account: $DEPLOYER_SA_ID"
@@ -116,13 +140,16 @@ fi
 project_number="$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')"
 pool_resource="projects/${project_number}/locations/global/workloadIdentityPools/${WIF_POOL_ID}"
 provider_resource="${pool_resource}/providers/${WIF_PROVIDER_ID}"
-wif_principal="principalSet://iam.googleapis.com/${pool_resource}/attribute.aws_role/${ENT_HOME_AWS_ROLE_NAME}"
 
-log "Granting WIF principal workloadIdentityUser on deployer SA"
-gcloud iam service-accounts add-iam-policy-binding "$deployer_email" \
-  --project="$PROJECT_ID" \
-  --role="roles/iam.workloadIdentityUser" \
-  --member="$wif_principal" >/dev/null
+log "Granting WIF principal workloadIdentityUser on deployer SA (one binding per role)"
+for role_name in "${role_name_array[@]}"; do
+  wif_principal="principalSet://iam.googleapis.com/${pool_resource}/attribute.aws_role/${role_name}"
+  echo "  role=${role_name}"
+  gcloud iam service-accounts add-iam-policy-binding "$deployer_email" \
+    --project="$PROJECT_ID" \
+    --role="roles/iam.workloadIdentityUser" \
+    --member="$wif_principal" >/dev/null
+done
 
 create_or_update_role() {
   local role_id="$1" role_file="$2"

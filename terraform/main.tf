@@ -27,8 +27,12 @@ resource "google_iam_workload_identity_pool_provider" "aws" {
   }
 
   # Attribute mapping extracts information from the AWS STS assertion.
+  # google.subject is mapped to the extracted role name rather than the full ARN:
+  # GCP caps google.subject at 127 bytes, and an ARN like
+  # "arn:aws:sts::<12>:assumed-role/<role>/<session>" easily exceeds that when
+  # EKS Pod Identity generates long session names.
   attribute_mapping = {
-    "google.subject"        = "assertion.arn"
+    "google.subject"        = "assertion.arn.extract('assumed-role/{role}/')"
     "attribute.aws_role"    = "assertion.arn.extract('assumed-role/{role}/')"
     "attribute.aws_account" = "assertion.account"
   }
@@ -46,13 +50,19 @@ resource "google_service_account" "ent_home_deployer" {
   description  = "Service account Ent Home impersonates to deploy tenant infrastructure."
 }
 
-# Allow the federated AWS role to impersonate the deployer SA.
+# Allow each federated AWS role to impersonate the deployer SA. Callers must
+# include both the EKS Pod Identity role the ent-home-api pod runs under at
+# runtime (used by deployments) and any human-admin role (used for manual
+# bootstrap or troubleshooting). Bindings are scoped by the extracted role
+# name (attribute.aws_role), not by the full ARN.
 
 resource "google_service_account_iam_member" "ent_home_workload_identity" {
+  for_each = var.ent_home_aws_role_names
+
   service_account_id = google_service_account.ent_home_deployer.name
   role               = "roles/iam.workloadIdentityUser"
 
-  member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.ent_home.name}/attribute.aws_role/${var.ent_home_aws_role_name}"
+  member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.ent_home.name}/attribute.aws_role/${each.value}"
 }
 
 # --- Role bindings ---

@@ -6,7 +6,7 @@ Analogue of [aws-ent-deploy-role](https://github.com/ent-security/aws-ent-deploy
 
 ## What this module provisions
 
-- A Workload Identity Pool + AWS provider that federates Ent Home's AWS IAM role into this GCP project.
+- A Workload Identity Pool + AWS provider that federates Ent Home's AWS IAM roles into this GCP project.
 - A service account (`ent-home-deployer`) that Ent Home impersonates via that federation.
 - Two custom IAM roles with enumerated permissions (no `roles/*.admin`):
   - **Unscoped role** — bound unconditionally; covers services whose IAM does not support resource-name conditions (Compute, GKE, Cloud SQL, Memorystore, Certificate Manager, Vertex AI, Service Networking).
@@ -16,8 +16,17 @@ Analogue of [aws-ent-deploy-role](https://github.com/ent-security/aws-ent-deploy
 ## Prerequisites
 
 - A GCP project that already exists, has billing enabled, and that you control as owner.
-- Ent's AWS account ID and Home IAM role name. You'll receive these from Ent during onboarding.
+- Ent's AWS account ID and the set of Home IAM role names. You'll receive these from Ent during onboarding.
 - One of: Terraform / OpenTofu 1.3+, or a shell with `gcloud` authenticated as a user with project owner or `iam.roleAdmin` + `resourcemanager.projectIamAdmin` + `iam.workloadIdentityPoolAdmin`.
+
+### About the AWS role names
+
+Ent Home may call into your GCP project from more than one AWS IAM role:
+
+- The **EKS Pod Identity role** the `ent-home-api` pod runs under at runtime. This is the role a deployment actually executes as. Ent will provide the exact name per environment (dev/prod).
+- One or more **human-admin roles** (for example `HomeProdAssumeAdmin`) used by Ent operators for manual bootstrap or troubleshooting runs.
+
+All of them must be federated, or deployments will fail with `Permission 'iam.serviceAccounts.getAccessToken' denied` when attempting to impersonate the deployer service account.
 
 ## Terraform / OpenTofu usage
 
@@ -28,8 +37,11 @@ module "ent_deployer" {
   source = "git::https://github.com/ent-security/gcp-ent-deploy-role//terraform?ref=main"
 
   project_id              = "my-gcp-project"
-  ent_home_aws_account_id = "051759900972"     # provided by Ent
-  ent_home_aws_role_name  = "HomeProdAssumeAdmin"
+  ent_home_aws_account_id = "051759900972"                              # provided by Ent
+  ent_home_aws_role_names = [                                           # provided by Ent
+    "HomeProdAssumeAdmin",                                              # human-admin
+    "prod-uswest2-eks-pi-1-abcd1234",                                   # EKS Pod Identity (example)
+  ]
 }
 
 output "ent_deployer_sa_email" {
@@ -50,10 +62,10 @@ cd terraform/
 tofu init
 tofu plan -var="project_id=my-gcp-project" \
           -var="ent_home_aws_account_id=051759900972" \
-          -var="ent_home_aws_role_name=HomeProdAssumeAdmin"
+          -var='ent_home_aws_role_names=["HomeProdAssumeAdmin","prod-uswest2-eks-pi-1-abcd1234"]'
 tofu apply -var="project_id=my-gcp-project" \
            -var="ent_home_aws_account_id=051759900972" \
-           -var="ent_home_aws_role_name=HomeProdAssumeAdmin"
+           -var='ent_home_aws_role_names=["HomeProdAssumeAdmin","prod-uswest2-eks-pi-1-abcd1234"]'
 ```
 
 ### Terraform inputs
@@ -62,7 +74,7 @@ tofu apply -var="project_id=my-gcp-project" \
 |---|---|---|---|
 | `project_id` | GCP project to bootstrap | — | yes |
 | `ent_home_aws_account_id` | 12-digit AWS account ID for Ent Home (provided by Ent) | `"000000000000"` (placeholder) | no |
-| `ent_home_aws_role_name` | AWS IAM role name that will be federated | `"HomeProdAssumeAdmin"` | no |
+| `ent_home_aws_role_names` | Set of AWS IAM role names federated to the deployer SA (provided by Ent; include every role Ent Home may assume) | — | yes |
 | `deployer_sa_id` | Account ID of the deployer SA | `"ent-home-deployer"` | no |
 | `wif_pool_id` | Workload Identity Pool ID | `"ent-home-pool"` | no |
 | `wif_provider_id` | Pool provider ID for AWS | `"aws-provider"` | no |
@@ -91,9 +103,11 @@ If you don't use Terraform, `gcloud/bootstrap.sh` runs the equivalent sequence i
 cd gcloud/
 PROJECT_ID=my-gcp-project \
 ENT_HOME_AWS_ACCOUNT_ID=051759900972 \
-ENT_HOME_AWS_ROLE_NAME=HomeProdAssumeAdmin \
+ENT_HOME_AWS_ROLE_NAMES="HomeProdAssumeAdmin prod-uswest2-eks-pi-1-abcd1234" \
 ./bootstrap.sh
 ```
+
+`ENT_HOME_AWS_ROLE_NAMES` is a whitespace-separated list.
 
 The script is idempotent — re-running updates existing resources rather than failing. It prints every `gcloud` command and finishes by emitting the same two output values the Terraform module produces.
 
@@ -105,7 +119,7 @@ The role definitions live in `gcloud/custom-role-unscoped.yaml` and `gcloud/cust
 |---|---|---|
 | `PROJECT_ID` | — | yes |
 | `ENT_HOME_AWS_ACCOUNT_ID` | — | yes |
-| `ENT_HOME_AWS_ROLE_NAME` | — | yes |
+| `ENT_HOME_AWS_ROLE_NAMES` | — | yes (whitespace-separated list) |
 | `DEPLOYER_SA_ID` | `ent-home-deployer` | no |
 | `WIF_POOL_ID` | `ent-home-pool` | no |
 | `WIF_PROVIDER_ID` | `aws-provider` | no |

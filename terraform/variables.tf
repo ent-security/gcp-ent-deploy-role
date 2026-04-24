@@ -14,10 +14,14 @@ variable "ent_home_aws_account_id" {
   }
 }
 
-variable "ent_home_aws_role_name" {
-  description = "IAM role name in Ent's AWS account that will be federated to impersonate the deployer service account."
-  type        = string
-  default     = "HomeProdAssumeAdmin"
+variable "ent_home_aws_role_names" {
+  description = "IAM role names in Ent's AWS account that federate to the deployer service account. Include every role the Ent Home control plane may assume when calling this project: the EKS Pod Identity role the ent-home-api pod runs under at runtime (used by deployments) and any human-admin role (e.g. HomeProdAssumeAdmin) used for manual bootstrap or troubleshooting. Provided by Ent."
+  type        = set(string)
+
+  validation {
+    condition     = length(var.ent_home_aws_role_names) > 0
+    error_message = "ent_home_aws_role_names must contain at least one role name."
+  }
 }
 
 variable "deployer_sa_id" {
