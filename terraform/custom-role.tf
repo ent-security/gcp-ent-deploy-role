@@ -82,8 +82,6 @@ resource "google_project_iam_custom_role" "unscoped" {
     "compute.networks.updatePolicy",
     "compute.networks.use",
     "compute.networks.useExternalIp",
-    "compute.operations.get",
-    "compute.operations.list",
     "compute.projects.get",
     "compute.regionOperations.get",
     "compute.regionOperations.list",
