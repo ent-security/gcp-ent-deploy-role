@@ -152,6 +152,7 @@ includedPermissions:
   - certificatemanager.certs.get
   - certificatemanager.certs.list
   - certificatemanager.certs.update
+  - certificatemanager.certs.use
   - certificatemanager.dnsauthorizations.create
   - certificatemanager.dnsauthorizations.delete
   - certificatemanager.dnsauthorizations.get

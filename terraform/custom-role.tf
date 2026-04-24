@@ -177,6 +177,7 @@ resource "google_project_iam_custom_role" "unscoped" {
     "certificatemanager.certs.get",
     "certificatemanager.certs.list",
     "certificatemanager.certs.update",
+    "certificatemanager.certs.use",
     "certificatemanager.dnsauthorizations.create",
     "certificatemanager.dnsauthorizations.delete",
     "certificatemanager.dnsauthorizations.get",
