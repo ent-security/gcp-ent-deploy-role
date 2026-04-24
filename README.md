@@ -175,7 +175,8 @@ Summary:
 | IAM Service Accounts | No (unconditional, project-scoped) | GCP's IAM Conditions use service accounts' numeric unique IDs in `resource.name`, so an email-prefix condition can never match. The tenant project boundary is the scope. |
 | Cloud DNS managed zones | Yes (zone-name prefix) | `create` / `list` at project scope. |
 | Compute (VPC, subnets, disks, addresses) | No | Enumerated verbs only (`compute.networks.*`, `compute.subnetworks.*`, etc.); not the full `roles/compute.admin`. |
-| GKE | No | `container.clusters.*`, `container.operations.*` only. |
+| GKE (cluster-level) | No | `container.clusters.*` and `container.operations.*` in the custom role. |
+| GKE (in-cluster K8s API) | No | Additional `roles/container.admin` binding. Kept as an admin role because no narrower predefined role covers cluster-scoped RBAC, which Helm charts routinely install (cert-manager, external-dns, operators). The tenant project boundary is the blast radius. |
 | Cloud SQL | No | Enumerated verbs, not `roles/cloudsql.admin`. |
 | Memorystore Redis | No | `redis.instances.*`, `redis.operations.*`. |
 | Certificate Manager | No | Enumerated verbs. |

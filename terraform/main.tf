@@ -79,6 +79,21 @@ resource "google_project_iam_member" "deployer_unscoped" {
   member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
 }
 
+# GKE in-cluster access: the custom role covers container.clusters.* for the
+# cluster resource itself. The in-cluster Kubernetes API (namespaces, secrets,
+# configmaps, cluster-scoped RBAC, CRDs, webhook configurations, priority
+# classes, leases, etc.) is guarded by the container.<k8s> permission family.
+# roles/container.developer is insufficient: it excludes cluster-scoped RBAC,
+# which Helm charts routinely install (cert-manager, external-dns, operators).
+# The only predefined role that includes cluster-scoped RBAC is
+# roles/container.admin, which is what ent-platform's original GCP tofu
+# granted. The tenant project boundary remains the blast radius.
+resource "google_project_iam_member" "deployer_container_admin" {
+  project = var.project_id
+  role    = "roles/container.admin"
+  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+}
+
 resource "google_project_iam_member" "deployer_scoped_storage" {
   project = var.project_id
   role    = google_project_iam_custom_role.scoped.name

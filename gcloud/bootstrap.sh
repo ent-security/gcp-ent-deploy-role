@@ -177,6 +177,19 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="$deployer_member" \
   --condition=None >/dev/null
 
+log "Binding roles/container.admin for GKE in-cluster K8s API access"
+# The custom unscoped role covers container.clusters.* for the cluster
+# resource. The in-cluster K8s API (namespaces, secrets, cluster-scoped
+# RBAC, CRDs, webhooks, priority classes, leases) is guarded by the
+# container.<k8s> permission family. roles/container.developer is
+# insufficient (no cluster-scoped RBAC), so Helm charts that install
+# ClusterRoles break. roles/container.admin is the only predefined role
+# that covers this, matching what ent-platform's original GCP tofu granted.
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --role="roles/container.admin" \
+  --member="$deployer_member" \
+  --condition=None >/dev/null
+
 bind_scoped() {
   local title="$1" expression="$2"
   gcloud projects add-iam-policy-binding "$PROJECT_ID" \
