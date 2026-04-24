@@ -80,7 +80,7 @@ tofu apply -var="project_id=my-gcp-project" \
 | `wif_provider_id` | Pool provider ID for AWS | `"aws-provider"` | no |
 | `custom_role_scoped_id` | Role ID for scoped role | `"entHomeDeployerScoped"` | no |
 | `custom_role_unscoped_id` | Role ID for unscoped role | `"entHomeDeployerUnscoped"` | no |
-| `tenant_name_prefix_glob` | Resource-name prefix used by IAM Conditions | `"e"` | no |
+| `tenant_name_prefix_glob` | Resource-name prefix used by IAM Conditions (matches ent-platform GCP `local.name_prefix`) | `"g"` | no |
 | `enable_apis` | Enable the required Google APIs | `true` | no |
 | `labels` | Labels applied to resources that support them | `{}` | no |
 
@@ -125,7 +125,7 @@ The role definitions live in `gcloud/custom-role-unscoped.yaml` and `gcloud/cust
 | `WIF_PROVIDER_ID` | `aws-provider` | no |
 | `ROLE_UNSCOPED_ID` | `entHomeDeployerUnscoped` | no |
 | `ROLE_SCOPED_ID` | `entHomeDeployerScoped` | no |
-| `TENANT_PREFIX` | `e` | no |
+| `TENANT_PREFIX` | `g` | no |
 | `ENABLE_APIS` | `true` | no |
 
 ## Connecting Ent to your project
@@ -184,11 +184,11 @@ Summary:
 
 ## Resource scoping
 
-Ent-provisioned resources are named with an auto-generated prefix: the literal `e`, 15 lowercase hex characters, and a hyphen — for example `e1a2b3c4d5e6f78-`. The prefix is a SHA-256 of the tenant, environment, and region, produced at deploy time by Ent's Home service.
+GCP tenant resources provisioned by ent-platform are named with an auto-generated prefix: the literal `g`, 15 lowercase hex characters, and a hyphen — for example `g1a2b3c4d5e6f78-`. The prefix is a SHA-256 of the tenant, environment, and region, produced at deploy time by Ent's Home service.
 
-IAM Conditions in this module use the prefix `e` (the variable `tenant_name_prefix_glob`) to match all Ent resources.
+IAM Conditions in this module use the prefix `g` (the variable `tenant_name_prefix_glob`) to match all Ent GCP resources. Note that ent-platform's AWS modules use the literal `e` as their first character; the GCP value is intentionally different and is tracked separately.
 
-**Cross-repo dependency**: this glob assumes the prefix generator in ent-platform's `deploy/tofu/platform/regional.tf` (and its GCP equivalent). If that formula changes shape in a future Ent release, re-apply this module with `tenant_name_prefix_glob` set to the new prefix.
+**Cross-repo dependency**: this glob assumes the GCP prefix generator in ent-platform's `deploy/tofu/gcp/platform/locals.tf`. If that formula changes shape in a future Ent release, re-apply this module with `tenant_name_prefix_glob` set to the new prefix.
 
 ## Services not granted
 

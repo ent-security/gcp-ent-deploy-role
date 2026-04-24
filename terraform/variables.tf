@@ -55,9 +55,9 @@ variable "custom_role_unscoped_id" {
 }
 
 variable "tenant_name_prefix_glob" {
-  description = "Resource-name prefix that IAM Conditions use to scope the deployer to Ent-managed resources. Must match ent-platform's local.name_prefix formula. Override only if ent-platform changes the prefix shape."
+  description = "Resource-name prefix that IAM Conditions use to scope the deployer to Ent-managed resources. Must match ent-platform's GCP local.name_prefix formula (deploy/tofu/gcp/platform/locals.tf), which starts with the literal \"g\". Override only if ent-platform changes the prefix shape."
   type        = string
-  default     = "e"
+  default     = "g"
 }
 
 variable "enable_apis" {

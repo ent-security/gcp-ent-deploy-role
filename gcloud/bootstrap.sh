@@ -20,7 +20,7 @@
 #   WIF_PROVIDER_ID        (default: aws-provider)
 #   ROLE_UNSCOPED_ID       (default: entHomeDeployerUnscoped)
 #   ROLE_SCOPED_ID         (default: entHomeDeployerScoped)
-#   TENANT_PREFIX          (default: e)
+#   TENANT_PREFIX          (default: g)
 #   ENABLE_APIS            (default: true; set to false to skip API enablement)
 
 set -euo pipefail
@@ -34,7 +34,7 @@ WIF_POOL_ID="${WIF_POOL_ID:-ent-home-pool}"
 WIF_PROVIDER_ID="${WIF_PROVIDER_ID:-aws-provider}"
 ROLE_UNSCOPED_ID="${ROLE_UNSCOPED_ID:-entHomeDeployerUnscoped}"
 ROLE_SCOPED_ID="${ROLE_SCOPED_ID:-entHomeDeployerScoped}"
-TENANT_PREFIX="${TENANT_PREFIX:-e}"
+TENANT_PREFIX="${TENANT_PREFIX:-g}"
 ENABLE_APIS="${ENABLE_APIS:-true}"
 
 if ! [[ "$ENT_HOME_AWS_ACCOUNT_ID" =~ ^[0-9]{12}$ ]]; then
