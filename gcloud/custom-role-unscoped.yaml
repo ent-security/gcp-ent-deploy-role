@@ -157,6 +157,7 @@ includedPermissions:
   - certificatemanager.dnsauthorizations.get
   - certificatemanager.dnsauthorizations.list
   - certificatemanager.dnsauthorizations.update
+  - certificatemanager.dnsauthorizations.use
   - certificatemanager.locations.get
   - certificatemanager.locations.list
   - certificatemanager.operations.cancel
@@ -174,6 +175,9 @@ includedPermissions:
   - servicenetworking.services.addPeering
   - servicenetworking.services.deleteConnection
   - servicenetworking.services.get
+  - servicedirectory.namespaces.create
+  - servicedirectory.namespaces.delete
+  - servicedirectory.namespaces.get
   - servicenetworking.services.use
   # Create verbs for conditionally-scoped services
   - storage.buckets.create

@@ -182,6 +182,7 @@ resource "google_project_iam_custom_role" "unscoped" {
     "certificatemanager.dnsauthorizations.get",
     "certificatemanager.dnsauthorizations.list",
     "certificatemanager.dnsauthorizations.update",
+    "certificatemanager.dnsauthorizations.use",
     "certificatemanager.locations.get",
     "certificatemanager.locations.list",
     "certificatemanager.operations.cancel",
@@ -201,6 +202,11 @@ resource "google_project_iam_custom_role" "unscoped" {
     "servicenetworking.services.deleteConnection",
     "servicenetworking.services.get",
     "servicenetworking.services.use",
+
+    # --- Service Directory (PSC global forwarding rules create a goog-psc-* namespace) ---
+    "servicedirectory.namespaces.create",
+    "servicedirectory.namespaces.delete",
+    "servicedirectory.namespaces.get",
 
     # --- Create verbs for services whose conditions cannot scope create ops ---
     # storage.buckets.create, pubsub.topics.create, etc. evaluate conditions

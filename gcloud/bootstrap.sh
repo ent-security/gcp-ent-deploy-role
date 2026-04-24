@@ -71,6 +71,7 @@ required_apis=(
   pubsub.googleapis.com
   redis.googleapis.com
   secretmanager.googleapis.com
+  servicedirectory.googleapis.com
   servicenetworking.googleapis.com
   serviceusage.googleapis.com
   sqladmin.googleapis.com

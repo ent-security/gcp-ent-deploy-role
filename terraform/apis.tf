@@ -22,6 +22,7 @@ locals {
     "pubsub.googleapis.com",               # Pub/Sub topics + subscriptions
     "redis.googleapis.com",                # Memorystore Redis
     "secretmanager.googleapis.com",        # Secrets
+    "servicedirectory.googleapis.com",     # PSC global forwarding rules create a Service Directory namespace
     "servicenetworking.googleapis.com",    # VPC peering for Cloud SQL private IP
     "serviceusage.googleapis.com",         # Needed by tenant tofu to inspect which APIs are enabled
     "sqladmin.googleapis.com",             # Cloud SQL
