@@ -57,6 +57,7 @@ resource "google_project_iam_custom_role" "unscoped" {
     "compute.forwardingRules.setLabels",
     "compute.forwardingRules.update",
     "compute.globalAddresses.create",
+    "compute.globalAddresses.createInternal",
     "compute.globalAddresses.delete",
     "compute.globalAddresses.get",
     "compute.globalAddresses.list",
@@ -69,6 +70,8 @@ resource "google_project_iam_custom_role" "unscoped" {
     "compute.globalForwardingRules.update",
     "compute.globalOperations.get",
     "compute.globalOperations.list",
+    "compute.instanceGroupManagers.get",
+    "compute.instanceGroupManagers.list",
     "compute.machineTypes.get",
     "compute.machineTypes.list",
     "compute.networks.addPeering",
@@ -223,6 +226,11 @@ resource "google_project_iam_custom_role" "unscoped" {
     # --- Resource Manager (reading project-level IAM) ---
     "resourcemanager.projects.get",
     "resourcemanager.projects.getIamPolicy",
+    "resourcemanager.projects.setIamPolicy",
+
+    # --- Service Usage (reading which Google APIs are enabled) ---
+    "serviceusage.services.get",
+    "serviceusage.services.list",
   ]
 }
 

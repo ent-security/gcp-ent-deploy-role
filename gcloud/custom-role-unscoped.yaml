@@ -34,6 +34,7 @@ includedPermissions:
   - compute.forwardingRules.setLabels
   - compute.forwardingRules.update
   - compute.globalAddresses.create
+  - compute.globalAddresses.createInternal
   - compute.globalAddresses.delete
   - compute.globalAddresses.get
   - compute.globalAddresses.list
@@ -46,6 +47,8 @@ includedPermissions:
   - compute.globalForwardingRules.update
   - compute.globalOperations.get
   - compute.globalOperations.list
+  - compute.instanceGroupManagers.get
+  - compute.instanceGroupManagers.list
   - compute.machineTypes.get
   - compute.machineTypes.list
   - compute.networks.addPeering
@@ -191,3 +194,6 @@ includedPermissions:
   - iam.roles.list
   - resourcemanager.projects.get
   - resourcemanager.projects.getIamPolicy
+  - resourcemanager.projects.setIamPolicy
+  - serviceusage.services.get
+  - serviceusage.services.list
