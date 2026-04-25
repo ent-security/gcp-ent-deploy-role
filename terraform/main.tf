@@ -27,8 +27,12 @@ resource "google_iam_workload_identity_pool_provider" "aws" {
   }
 
   # Attribute mapping extracts information from the AWS STS assertion.
+  # google.subject is mapped to the extracted role name rather than the full ARN:
+  # GCP caps google.subject at 127 bytes, and an ARN like
+  # "arn:aws:sts::<12>:assumed-role/<role>/<session>" easily exceeds that when
+  # EKS Pod Identity generates long session names.
   attribute_mapping = {
-    "google.subject"        = "assertion.arn"
+    "google.subject"        = "assertion.arn.extract('assumed-role/{role}/')"
     "attribute.aws_role"    = "assertion.arn.extract('assumed-role/{role}/')"
     "attribute.aws_account" = "assertion.account"
   }
@@ -46,13 +50,19 @@ resource "google_service_account" "ent_home_deployer" {
   description  = "Service account Ent Home impersonates to deploy tenant infrastructure."
 }
 
-# Allow the federated AWS role to impersonate the deployer SA.
+# Allow each federated AWS role to impersonate the deployer SA. Callers must
+# include both the EKS Pod Identity role the ent-home-api pod runs under at
+# runtime (used by deployments) and any human-admin role (used for manual
+# bootstrap or troubleshooting). Bindings are scoped by the extracted role
+# name (attribute.aws_role), not by the full ARN.
 
 resource "google_service_account_iam_member" "ent_home_workload_identity" {
+  for_each = var.ent_home_aws_role_names
+
   service_account_id = google_service_account.ent_home_deployer.name
   role               = "roles/iam.workloadIdentityUser"
 
-  member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.ent_home.name}/attribute.aws_role/${var.ent_home_aws_role_name}"
+  member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.ent_home.name}/attribute.aws_role/${each.value}"
 }
 
 # --- Role bindings ---
@@ -66,6 +76,21 @@ resource "google_service_account_iam_member" "ent_home_workload_identity" {
 resource "google_project_iam_member" "deployer_unscoped" {
   project = var.project_id
   role    = google_project_iam_custom_role.unscoped.name
+  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+}
+
+# GKE in-cluster access: the custom role covers container.clusters.* for the
+# cluster resource itself. The in-cluster Kubernetes API (namespaces, secrets,
+# configmaps, cluster-scoped RBAC, CRDs, webhook configurations, priority
+# classes, leases, etc.) is guarded by the container.<k8s> permission family.
+# roles/container.developer is insufficient: it excludes cluster-scoped RBAC,
+# which Helm charts routinely install (cert-manager, external-dns, operators).
+# The only predefined role that includes cluster-scoped RBAC is
+# roles/container.admin, which is what ent-platform's original GCP tofu
+# granted. The tenant project boundary remains the blast radius.
+resource "google_project_iam_member" "deployer_container_admin" {
+  project = var.project_id
+  role    = "roles/container.admin"
   member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
 }
 
@@ -129,16 +154,16 @@ resource "google_project_iam_member" "deployer_scoped_artifacts" {
   }
 }
 
+# IAM service-account verbs must be granted unconditionally within the project:
+# GCP's IAM condition engine substitutes the service account's numeric unique ID
+# (e.g. "projects/-/serviceAccounts/108685713668969420602") into resource.name, not
+# the email. A name-prefix condition like startsWith("${var.tenant_name_prefix_glob}")
+# can never match a numeric ID. The tenant project itself is the blast-radius
+# boundary for these verbs.
 resource "google_project_iam_member" "deployer_scoped_service_accounts" {
   project = var.project_id
   role    = google_project_iam_custom_role.scoped.name
   member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
-
-  condition {
-    title       = "Scoped to Ent-prefixed service accounts"
-    description = "Limits iam.serviceAccounts verbs to SAs whose account ID starts with the Ent tenant prefix."
-    expression  = "resource.type == \"iam.googleapis.com/ServiceAccount\" && resource.name.extract(\"/serviceAccounts/{email}\").startsWith(\"${var.tenant_name_prefix_glob}\")"
-  }
 }
 
 resource "google_project_iam_member" "deployer_scoped_dns" {
@@ -148,7 +173,7 @@ resource "google_project_iam_member" "deployer_scoped_dns" {
 
   condition {
     title       = "Scoped to Ent-prefixed DNS managed zones"
-    description = "Limits dns verbs to managed zones whose name starts with the Ent tenant prefix."
-    expression  = "resource.type == \"dns.googleapis.com/ManagedZone\" && resource.name.extract(\"/managedZones/{name}\").startsWith(\"${var.tenant_name_prefix_glob}\")"
+    description = "Limits dns verbs to managed zones whose name starts with the Ent tenant prefix. GCP's IAM condition engine lowercases the DNS resource path to /managedzones/, so that casing must be used here."
+    expression  = "resource.type == \"dns.googleapis.com/ManagedZone\" && resource.name.extract(\"/managedzones/{name}\").startsWith(\"${var.tenant_name_prefix_glob}\")"
   }
 }

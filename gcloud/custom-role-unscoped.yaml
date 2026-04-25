@@ -34,11 +34,13 @@ includedPermissions:
   - compute.forwardingRules.setLabels
   - compute.forwardingRules.update
   - compute.globalAddresses.create
+  - compute.globalAddresses.createInternal
   - compute.globalAddresses.delete
   - compute.globalAddresses.get
   - compute.globalAddresses.list
   - compute.globalAddresses.use
   - compute.globalForwardingRules.create
+  - compute.globalForwardingRules.pscCreate
   - compute.globalForwardingRules.delete
   - compute.globalForwardingRules.get
   - compute.globalForwardingRules.list
@@ -46,6 +48,8 @@ includedPermissions:
   - compute.globalForwardingRules.update
   - compute.globalOperations.get
   - compute.globalOperations.list
+  - compute.instanceGroupManagers.get
+  - compute.instanceGroupManagers.list
   - compute.machineTypes.get
   - compute.machineTypes.list
   - compute.networks.addPeering
@@ -148,11 +152,13 @@ includedPermissions:
   - certificatemanager.certs.get
   - certificatemanager.certs.list
   - certificatemanager.certs.update
+  - certificatemanager.certs.use
   - certificatemanager.dnsauthorizations.create
   - certificatemanager.dnsauthorizations.delete
   - certificatemanager.dnsauthorizations.get
   - certificatemanager.dnsauthorizations.list
   - certificatemanager.dnsauthorizations.update
+  - certificatemanager.dnsauthorizations.use
   - certificatemanager.locations.get
   - certificatemanager.locations.list
   - certificatemanager.operations.cancel
@@ -170,6 +176,9 @@ includedPermissions:
   - servicenetworking.services.addPeering
   - servicenetworking.services.deleteConnection
   - servicenetworking.services.get
+  - servicedirectory.namespaces.create
+  - servicedirectory.namespaces.delete
+  - servicedirectory.namespaces.get
   - servicenetworking.services.use
   # Create verbs for conditionally-scoped services
   - storage.buckets.create
@@ -191,3 +200,6 @@ includedPermissions:
   - iam.roles.list
   - resourcemanager.projects.get
   - resourcemanager.projects.getIamPolicy
+  - resourcemanager.projects.setIamPolicy
+  - serviceusage.services.get
+  - serviceusage.services.list

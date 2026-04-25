@@ -57,11 +57,13 @@ resource "google_project_iam_custom_role" "unscoped" {
     "compute.forwardingRules.setLabels",
     "compute.forwardingRules.update",
     "compute.globalAddresses.create",
+    "compute.globalAddresses.createInternal",
     "compute.globalAddresses.delete",
     "compute.globalAddresses.get",
     "compute.globalAddresses.list",
     "compute.globalAddresses.use",
     "compute.globalForwardingRules.create",
+    "compute.globalForwardingRules.pscCreate",
     "compute.globalForwardingRules.delete",
     "compute.globalForwardingRules.get",
     "compute.globalForwardingRules.list",
@@ -69,6 +71,8 @@ resource "google_project_iam_custom_role" "unscoped" {
     "compute.globalForwardingRules.update",
     "compute.globalOperations.get",
     "compute.globalOperations.list",
+    "compute.instanceGroupManagers.get",
+    "compute.instanceGroupManagers.list",
     "compute.machineTypes.get",
     "compute.machineTypes.list",
     "compute.networks.addPeering",
@@ -173,11 +177,13 @@ resource "google_project_iam_custom_role" "unscoped" {
     "certificatemanager.certs.get",
     "certificatemanager.certs.list",
     "certificatemanager.certs.update",
+    "certificatemanager.certs.use",
     "certificatemanager.dnsauthorizations.create",
     "certificatemanager.dnsauthorizations.delete",
     "certificatemanager.dnsauthorizations.get",
     "certificatemanager.dnsauthorizations.list",
     "certificatemanager.dnsauthorizations.update",
+    "certificatemanager.dnsauthorizations.use",
     "certificatemanager.locations.get",
     "certificatemanager.locations.list",
     "certificatemanager.operations.cancel",
@@ -197,6 +203,11 @@ resource "google_project_iam_custom_role" "unscoped" {
     "servicenetworking.services.deleteConnection",
     "servicenetworking.services.get",
     "servicenetworking.services.use",
+
+    # --- Service Directory (PSC global forwarding rules create a goog-psc-* namespace) ---
+    "servicedirectory.namespaces.create",
+    "servicedirectory.namespaces.delete",
+    "servicedirectory.namespaces.get",
 
     # --- Create verbs for services whose conditions cannot scope create ops ---
     # storage.buckets.create, pubsub.topics.create, etc. evaluate conditions
@@ -223,6 +234,11 @@ resource "google_project_iam_custom_role" "unscoped" {
     # --- Resource Manager (reading project-level IAM) ---
     "resourcemanager.projects.get",
     "resourcemanager.projects.getIamPolicy",
+    "resourcemanager.projects.setIamPolicy",
+
+    # --- Service Usage (reading which Google APIs are enabled) ---
+    "serviceusage.services.get",
+    "serviceusage.services.list",
   ]
 }
 
