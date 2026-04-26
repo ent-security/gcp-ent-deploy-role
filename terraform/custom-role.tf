@@ -29,6 +29,7 @@ resource "google_project_iam_custom_role" "unscoped" {
     # --- Compute: networks, subnets, firewalls, disks, addresses ---
     "compute.addresses.create",
     "compute.addresses.delete",
+    "compute.addresses.deleteInternal",
     "compute.addresses.get",
     "compute.addresses.list",
     "compute.addresses.use",
@@ -59,6 +60,7 @@ resource "google_project_iam_custom_role" "unscoped" {
     "compute.globalAddresses.create",
     "compute.globalAddresses.createInternal",
     "compute.globalAddresses.delete",
+    "compute.globalAddresses.deleteInternal",
     "compute.globalAddresses.get",
     "compute.globalAddresses.list",
     "compute.globalAddresses.use",

@@ -28,6 +28,26 @@ Ent Home may call into your GCP project from more than one AWS IAM role:
 
 All of them must be federated, or deployments will fail with `Permission 'iam.serviceAccounts.getAccessToken' denied` when attempting to impersonate the deployer service account.
 
+### Reusing an existing service account across many tenant projects
+
+By default this module creates a deployer SA and a Workload Identity Pool inside `project_id`. If you instead want to reuse a single deployer SA that lives in a separate project (e.g. an internal pattern where one shared SA in a central platform project is granted into many tenant projects), set `existing_deployer_sa_email`:
+
+```hcl
+module "ent_deployer" {
+  source = "git::https://github.com/ent-security/gcp-ent-deploy-role//terraform?ref=main"
+
+  project_id                 = "prj-d-tenant-foo"
+  existing_deployer_sa_email = "ent-platform-wi@prj-d-ent-platform.iam.gserviceaccount.com"
+}
+```
+
+In this mode the module:
+- Does **not** create a service account or Workload Identity Pool/provider in `project_id`.
+- Creates the two custom roles in `project_id` and grants them to the supplied SA.
+- Enables the required APIs (controlled by `enable_apis`, default `true`).
+
+`ent_home_aws_account_id` and `ent_home_aws_role_names` are unused in this mode (the WIF pool that consumes them is not created here). The `wif_provider_resource_name` and `wif_pool_resource_name` outputs return `null`. You are responsible for ensuring the supplied SA has whatever impersonation chain it needs (typically a one-time `roles/iam.workloadIdentityUser` binding in its home project).
+
 ## Terraform / OpenTofu usage
 
 **Note**: pin to a specific tag (e.g. `ref=v1.0.0`) for production. `ref=main` is shown below for convenience.
@@ -74,8 +94,9 @@ tofu apply -var="project_id=my-gcp-project" \
 |---|---|---|---|
 | `project_id` | GCP project to bootstrap | — | yes |
 | `ent_home_aws_account_id` | 12-digit AWS account ID for Ent Home (provided by Ent) | `"000000000000"` (placeholder) | no |
-| `ent_home_aws_role_names` | Set of AWS IAM role names federated to the deployer SA (provided by Ent; include every role Ent Home may assume) | — | yes |
-| `deployer_sa_id` | Account ID of the deployer SA | `"ent-home-deployer"` | no |
+| `ent_home_aws_role_names` | Set of AWS IAM role names federated to the deployer SA (provided by Ent; include every role Ent Home may assume). Required in default mode; ignored when `existing_deployer_sa_email` is set. | `[]` | conditional |
+| `existing_deployer_sa_email` | Email of an existing SA to bind the deployer roles to. When set, the module skips creating its own SA + WIF pool. | `""` (create new) | no |
+| `deployer_sa_id` | Account ID of the deployer SA. Ignored when `existing_deployer_sa_email` is set. | `"ent-home-deployer"` | no |
 | `wif_pool_id` | Workload Identity Pool ID | `"ent-home-pool"` | no |
 | `wif_provider_id` | Pool provider ID for AWS | `"aws-provider"` | no |
 | `custom_role_scoped_id` | Role ID for scoped role | `"entHomeDeployerScoped"` | no |
