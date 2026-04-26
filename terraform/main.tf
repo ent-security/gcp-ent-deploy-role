@@ -6,8 +6,20 @@
 # 3. GCP STS validates the signature with AWS.
 # 4. GCP returns a federated token that can impersonate the deployer SA.
 # 5. The deployer SA has the permissions defined in custom-role.tf.
+#
+# When `existing_deployer_sa_email` is set, the SA + WIF pool are assumed to
+# live elsewhere (typically a central platform project shared across tenants),
+# and this module only creates the custom roles and grants them to that SA.
+
+locals {
+  use_existing_sa    = var.existing_deployer_sa_email != ""
+  deployer_sa_email  = local.use_existing_sa ? var.existing_deployer_sa_email : one(google_service_account.ent_home_deployer[*].email)
+  deployer_sa_member = "serviceAccount:${local.deployer_sa_email}"
+}
 
 resource "google_iam_workload_identity_pool" "ent_home" {
+  count = local.use_existing_sa ? 0 : 1
+
   project                   = var.project_id
   workload_identity_pool_id = var.wif_pool_id
   display_name              = "Ent Home AWS Pool"
@@ -16,8 +28,10 @@ resource "google_iam_workload_identity_pool" "ent_home" {
 }
 
 resource "google_iam_workload_identity_pool_provider" "aws" {
+  count = local.use_existing_sa ? 0 : 1
+
   project                            = var.project_id
-  workload_identity_pool_id          = google_iam_workload_identity_pool.ent_home.workload_identity_pool_id
+  workload_identity_pool_id          = google_iam_workload_identity_pool.ent_home[0].workload_identity_pool_id
   workload_identity_pool_provider_id = var.wif_provider_id
   display_name                       = "AWS Provider"
   description                        = "AWS identity provider for Ent Home authentication."
@@ -39,11 +53,22 @@ resource "google_iam_workload_identity_pool_provider" "aws" {
 
   # Only accept credentials from Ent's AWS account.
   attribute_condition = "attribute.aws_account == '${var.ent_home_aws_account_id}'"
+
+  # ent_home_aws_role_names is required in default mode (its length validation
+  # moved here from the variable so external-SA mode can default to []).
+  lifecycle {
+    precondition {
+      condition     = length(var.ent_home_aws_role_names) > 0
+      error_message = "ent_home_aws_role_names must contain at least one role name when not using existing_deployer_sa_email."
+    }
+  }
 }
 
 # Service account that Ent Home impersonates for deployments.
 
 resource "google_service_account" "ent_home_deployer" {
+  count = local.use_existing_sa ? 0 : 1
+
   project      = var.project_id
   account_id   = var.deployer_sa_id
   display_name = "Ent Home Deployer"
@@ -57,12 +82,12 @@ resource "google_service_account" "ent_home_deployer" {
 # name (attribute.aws_role), not by the full ARN.
 
 resource "google_service_account_iam_member" "ent_home_workload_identity" {
-  for_each = var.ent_home_aws_role_names
+  for_each = local.use_existing_sa ? toset([]) : var.ent_home_aws_role_names
 
-  service_account_id = google_service_account.ent_home_deployer.name
+  service_account_id = google_service_account.ent_home_deployer[0].name
   role               = "roles/iam.workloadIdentityUser"
 
-  member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.ent_home.name}/attribute.aws_role/${each.value}"
+  member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.ent_home[0].name}/attribute.aws_role/${each.value}"
 }
 
 # --- Role bindings ---
@@ -76,7 +101,7 @@ resource "google_service_account_iam_member" "ent_home_workload_identity" {
 resource "google_project_iam_member" "deployer_unscoped" {
   project = var.project_id
   role    = google_project_iam_custom_role.unscoped.name
-  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+  member  = local.deployer_sa_member
 }
 
 # GKE in-cluster access: the custom role covers container.clusters.* for the
@@ -91,13 +116,13 @@ resource "google_project_iam_member" "deployer_unscoped" {
 resource "google_project_iam_member" "deployer_container_admin" {
   project = var.project_id
   role    = "roles/container.admin"
-  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+  member  = local.deployer_sa_member
 }
 
 resource "google_project_iam_member" "deployer_scoped_storage" {
   project = var.project_id
   role    = google_project_iam_custom_role.scoped.name
-  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+  member  = local.deployer_sa_member
 
   condition {
     title       = "Scoped to Ent-prefixed GCS buckets"
@@ -109,7 +134,7 @@ resource "google_project_iam_member" "deployer_scoped_storage" {
 resource "google_project_iam_member" "deployer_scoped_secrets" {
   project = var.project_id
   role    = google_project_iam_custom_role.scoped.name
-  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+  member  = local.deployer_sa_member
 
   condition {
     title       = "Scoped to Ent-prefixed Secret Manager secrets"
@@ -121,7 +146,7 @@ resource "google_project_iam_member" "deployer_scoped_secrets" {
 resource "google_project_iam_member" "deployer_scoped_pubsub_topics" {
   project = var.project_id
   role    = google_project_iam_custom_role.scoped.name
-  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+  member  = local.deployer_sa_member
 
   condition {
     title       = "Scoped to Ent-prefixed Pub/Sub topics"
@@ -133,7 +158,7 @@ resource "google_project_iam_member" "deployer_scoped_pubsub_topics" {
 resource "google_project_iam_member" "deployer_scoped_pubsub_subscriptions" {
   project = var.project_id
   role    = google_project_iam_custom_role.scoped.name
-  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+  member  = local.deployer_sa_member
 
   condition {
     title       = "Scoped to Ent-prefixed Pub/Sub subscriptions"
@@ -145,7 +170,7 @@ resource "google_project_iam_member" "deployer_scoped_pubsub_subscriptions" {
 resource "google_project_iam_member" "deployer_scoped_artifacts" {
   project = var.project_id
   role    = google_project_iam_custom_role.scoped.name
-  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+  member  = local.deployer_sa_member
 
   condition {
     title       = "Scoped to Ent-prefixed Artifact Registry repositories"
@@ -163,13 +188,13 @@ resource "google_project_iam_member" "deployer_scoped_artifacts" {
 resource "google_project_iam_member" "deployer_scoped_service_accounts" {
   project = var.project_id
   role    = google_project_iam_custom_role.scoped.name
-  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+  member  = local.deployer_sa_member
 }
 
 resource "google_project_iam_member" "deployer_scoped_dns" {
   project = var.project_id
   role    = google_project_iam_custom_role.scoped.name
-  member  = "serviceAccount:${google_service_account.ent_home_deployer.email}"
+  member  = local.deployer_sa_member
 
   condition {
     title       = "Scoped to Ent-prefixed DNS managed zones"

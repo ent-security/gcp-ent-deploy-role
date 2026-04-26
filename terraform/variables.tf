@@ -15,19 +15,28 @@ variable "ent_home_aws_account_id" {
 }
 
 variable "ent_home_aws_role_names" {
-  description = "IAM role names in Ent's AWS account that federate to the deployer service account. Include every role the Ent Home control plane may assume when calling this project: the EKS Pod Identity role the ent-home-api pod runs under at runtime (used by deployments) and any human-admin role (e.g. HomeProdAssumeAdmin) used for manual bootstrap or troubleshooting. Provided by Ent."
+  description = "IAM role names in Ent's AWS account that federate to the deployer service account. Include every role the Ent Home control plane may assume when calling this project: the EKS Pod Identity role the ent-home-api pod runs under at runtime (used by deployments) and any human-admin role (e.g. HomeProdAssumeAdmin) used for manual bootstrap or troubleshooting. Provided by Ent. Ignored when `existing_deployer_sa_email` is set."
   type        = set(string)
-
-  validation {
-    condition     = length(var.ent_home_aws_role_names) > 0
-    error_message = "ent_home_aws_role_names must contain at least one role name."
-  }
+  default     = []
+  # Length validation moved to a precondition on the WIF provider resource so
+  # external-SA mode (existing_deployer_sa_email set) does not require this.
 }
 
 variable "deployer_sa_id" {
-  description = "Account ID (the part before @) for the service account Ent Home will impersonate."
+  description = "Account ID (the part before @) for the service account Ent Home will impersonate. Ignored when `existing_deployer_sa_email` is set."
   type        = string
   default     = "ent-home-deployer"
+}
+
+variable "existing_deployer_sa_email" {
+  description = "Email of an existing service account to bind the deployer roles to. When set, this module skips creating its own deployer SA and Workload Identity Pool/provider — those resources are assumed to exist elsewhere (typically a central platform project whose SA is reused across many tenant projects). When unset (default), the module creates a new SA + WIF pool inside `project_id` (the customer-facing flow). In external-SA mode the module still creates the two custom roles, grants them to the supplied SA, and enables the required APIs."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.existing_deployer_sa_email == "" || can(regex("@[a-z0-9-]+\\.iam\\.gserviceaccount\\.com$", var.existing_deployer_sa_email))
+    error_message = "existing_deployer_sa_email must be empty or a valid GCP service account email (e.g. my-sa@my-project.iam.gserviceaccount.com)."
+  }
 }
 
 variable "wif_pool_id" {

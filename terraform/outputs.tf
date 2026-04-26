@@ -1,16 +1,16 @@
 output "deployer_sa_email" {
-  description = "Email of the deployer service account. Paste this into Ent's GCP connection panel."
-  value       = google_service_account.ent_home_deployer.email
+  description = "Email of the deployer service account. Paste this into Ent's GCP connection panel. In external-SA mode this echoes back `var.existing_deployer_sa_email`."
+  value       = local.deployer_sa_email
 }
 
 output "wif_provider_resource_name" {
-  description = "Full resource name of the Workload Identity provider. Paste this into Ent's GCP connection panel."
-  value       = google_iam_workload_identity_pool_provider.aws.name
+  description = "Full resource name of the Workload Identity provider. Paste this into Ent's GCP connection panel. Null when `existing_deployer_sa_email` is set (the WIF pool lives elsewhere)."
+  value       = one(google_iam_workload_identity_pool_provider.aws[*].name)
 }
 
 output "wif_pool_resource_name" {
-  description = "Full resource name of the Workload Identity pool (for reference)."
-  value       = google_iam_workload_identity_pool.ent_home.name
+  description = "Full resource name of the Workload Identity pool (for reference). Null when `existing_deployer_sa_email` is set."
+  value       = one(google_iam_workload_identity_pool.ent_home[*].name)
 }
 
 output "project_id" {
