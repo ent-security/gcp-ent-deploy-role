@@ -121,7 +121,7 @@ Used by `platform-dns/main.tf` to provision the per-tenant public DNS zone, and 
 
 ## Compute Engine
 
-Used by `networking.tf`, `opensearch.tf`, `databases.tf` — VPC + peering, firewall rules, global addresses, forwarding rules, persistent disks for OpenSearch.
+Used by `networking.tf`, `opensearch.tf`, `databases.tf`, `ingest-lb.tf` — VPC + peering, firewall rules, global addresses, forwarding rules, persistent disks for OpenSearch, and the Compute-direct external L7 LB for ingest-api on GCP HOBO tenants.
 
 Not conditionally scoped: `compute.*` IAM does not support `resource.name` conditions for the actions Home needs at create time.
 
@@ -131,8 +131,14 @@ Not conditionally scoped: `compute.*` IAM does not support `resource.name` condi
 | `compute.subnetworks.*` (create, get, list, update, delete, expandIpCidrRange, use, useExternalIp, getIamPolicy, setIamPolicy) | Subnet management, used by GKE. |
 | `compute.firewalls.*` (create, get, list, update, delete) | Firewall rules around GKE + Cloud SQL. |
 | `compute.disks.*` (create, get, list, update, delete, use, useReadOnly, setLabels, getIamPolicy, setIamPolicy) | OpenSearch persistent disks. |
-| `compute.globalAddresses.*` + `compute.addresses.*` | Private Service Connect endpoints, Grafana static IP, Cloud SQL private-IP allocation range. |
-| `compute.globalForwardingRules.*` + `compute.forwardingRules.*` | PSC forwarding rule. |
+| `compute.globalAddresses.*` + `compute.addresses.*` | Private Service Connect endpoints, Grafana static IP, Cloud SQL private-IP allocation range, ingest LB static IP. |
+| `compute.globalForwardingRules.*` + `compute.forwardingRules.*` | PSC forwarding rule, ingest LB :80 / :443 forwarding rules. |
+| `compute.backendServices.*` (create, get, list, update, delete, use) | Ingest LB BackendService — Tofu-owned so `custom_request_headers` for mTLS cert forwarding survives reconciles (the GKE Gateway controller strips them). |
+| `compute.healthChecks.*` (create, get, list, update, delete, use, useReadOnly) | HTTPS health check fronting the ingest BackendService. |
+| `compute.networkEndpointGroups.*` (get, list, use) | Referencing the standalone NEG (created per-zone by GKE from the ingest-api Service annotation) from the BackendService. |
+| `compute.urlMaps.*` (create, get, list, update, delete, use, validate) | Ingest LB URL map (default route) + HTTP→HTTPS redirect URL map. |
+| `compute.targetHttpsProxies.*` (create, get, list, update, delete, use) | Ingest LB front-end TLS termination (binds the certificate map and ServerTlsPolicy). |
+| `compute.targetHttpProxies.*` (create, get, list, update, delete, use) | HTTP→HTTPS redirect proxy on port 80. |
 | `compute.routers.*` + `compute.routes.*` | NAT + custom routes. |
 | `compute.regions.*`, `compute.zones.*`, `compute.machineTypes.*`, `compute.diskTypes.*` | Reads for GKE planning. |
 | `compute.operations.*`, `compute.globalOperations.*`, `compute.regionOperations.*`, `compute.zoneOperations.*` | Polling asynchronous compute operations. |
@@ -172,16 +178,26 @@ Used by `databases.tf` to provision a STANDARD_HA Redis 7.0 instance.
 
 ## Certificate Manager
 
-Used by `certificate-manager.tf` for the managed SSL certificate, DNS authorization, and certificate map/entry binding to the GKE Gateway.
+Used by `certificate-manager.tf` for the managed SSL certificate, DNS authorization, and certificate map/entry binding to the GKE Gateway, and by `client-mtls.tf` for the TrustConfig that backs the ingest LB's ServerTlsPolicy.
 
 | Permission | Rationale |
 |---|---|
-| `certificatemanager.certs.{create, get, list, update, delete}` | Managed certificate lifecycle. |
-| `certificatemanager.dnsauthorizations.{create, get, list, update, delete}` | Domain validation. |
-| `certificatemanager.certmaps.{create, get, list, update, delete}` | Certificate map for Gateway. |
+| `certificatemanager.certs.{create, get, list, update, delete, use}` | Managed certificate lifecycle. |
+| `certificatemanager.dnsauthorizations.{create, get, list, update, delete, use}` | Domain validation. |
+| `certificatemanager.certmaps.{create, get, list, update, delete, use}` | Certificate map for Gateway + ingest LB target HTTPS proxy. |
 | `certificatemanager.certmapentries.{create, get, list, update, delete}` | Map entries per domain. |
+| `certificatemanager.trustconfigs.{create, get, list, update, delete, use}` | Trust anchor catalog for front-end client mTLS — seeded with a placeholder by Tofu and overwritten with the real intermediate CA by `WireGcpClientMTLSStep`. |
 | `certificatemanager.locations.{get, list}` | Listing regions where CM is available. |
 | `certificatemanager.operations.{get, list, cancel, delete}` | Async op polling. |
+
+## Network Security
+
+Used by `client-mtls.tf` for the ServerTlsPolicy that puts the ingest LB into `ALLOW_INVALID_OR_MISSING_CLIENT_CERT` mode and binds the TrustConfig — the resource that convinces GCLB to populate `{client_cert_leaf}` and forward the client cert to ingest-api pods.
+
+| Permission | Rationale |
+|---|---|
+| `networksecurity.serverTlsPolicies.{create, get, list, update, delete, use, getIamPolicy}` | ServerTlsPolicy lifecycle and reference from `compute.targetHttpsProxies`. |
+| `networksecurity.operations.{get, list}` | Async op polling. |
 
 ## Vertex AI
 
