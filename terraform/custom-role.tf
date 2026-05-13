@@ -94,7 +94,6 @@ resource "google_project_iam_custom_role" "unscoped" {
     "compute.networkEndpointGroups.delete",
     "compute.networkEndpointGroups.get",
     "compute.networkEndpointGroups.list",
-    "compute.networkEndpointGroups.update",
     "compute.networkEndpointGroups.use",
     "compute.networks.addPeering",
     "compute.networks.create",
