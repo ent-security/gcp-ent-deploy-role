@@ -135,7 +135,7 @@ Not conditionally scoped: `compute.*` IAM does not support `resource.name` condi
 | `compute.globalForwardingRules.*` + `compute.forwardingRules.*` | PSC forwarding rule, ingest LB :80 / :443 forwarding rules. |
 | `compute.backendServices.*` (create, get, list, update, delete, use) | Ingest LB BackendService — Tofu-owned so `custom_request_headers` for mTLS cert forwarding survives reconciles (the GKE Gateway controller strips them). |
 | `compute.healthChecks.*` (create, get, list, update, delete, use, useReadOnly) | HTTPS health check fronting the ingest BackendService. |
-| `compute.networkEndpointGroups.*` (get, list, use) | Referencing the standalone NEG (created per-zone by GKE from the ingest-api Service annotation) from the BackendService. |
+| `compute.networkEndpointGroups.*` (create, delete, get, list, update, use) | Tofu pre-creates the standalone NEG per cluster zone so the BackendService can attach at plan time. GKE's NEG controller adopts the NEG when the ingest-api Service annotation is applied and owns endpoint membership; `attach/detach` are not granted to the deployer SA because they're the controller's job. |
 | `compute.urlMaps.*` (create, get, list, update, delete, use, validate) | Ingest LB URL map (default route) + HTTP→HTTPS redirect URL map. |
 | `compute.targetHttpsProxies.*` (create, get, list, update, delete, use) | Ingest LB front-end TLS termination (binds the certificate map and ServerTlsPolicy). |
 | `compute.targetHttpProxies.*` (create, get, list, update, delete, use) | HTTP→HTTPS redirect proxy on port 80. |
