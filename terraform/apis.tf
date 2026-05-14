@@ -19,6 +19,7 @@ locals {
     "iamcredentials.googleapis.com",       # Service account impersonation
     "logging.googleapis.com",              # Cloud Logging (used by GKE)
     "monitoring.googleapis.com",           # Cloud Monitoring (used by GKE)
+    "networksecurity.googleapis.com",      # ServerTlsPolicy for ingest front-end mTLS
     "pubsub.googleapis.com",               # Pub/Sub topics + subscriptions
     "redis.googleapis.com",                # Memorystore Redis
     "secretmanager.googleapis.com",        # Secrets
