@@ -9,9 +9,9 @@ Analogue of [aws-ent-deploy-role](https://github.com/ent-security/aws-ent-deploy
 - A Workload Identity Pool + AWS provider that federates Ent Home's AWS IAM roles into this GCP project.
 - A service account (`ent-home-deployer`) that Ent Home impersonates via that federation.
 - Two custom IAM roles with enumerated permissions (no `roles/*.admin`):
-  - **Unscoped role** — bound unconditionally; covers services whose IAM does not support resource-name conditions (Compute, GKE, Cloud SQL, Memorystore, Certificate Manager, Vertex AI, Service Networking).
+  - **Unscoped role** — bound unconditionally; covers services whose IAM does not support resource-name conditions (Compute, GKE, Cloud SQL, Memorystore, Filestore, Certificate Manager, Network Security, Vertex AI, Service Networking).
   - **Scoped role** — bound seven times with per-service IAM Conditions that restrict the deployer to Ent-prefixed resources (Storage, Secret Manager, Pub/Sub, Artifact Registry, IAM service accounts, Cloud DNS).
-- Enablement of the 17 Google APIs Ent Home requires.
+- Enablement of the 21 Google APIs Ent Home requires.
 
 ## Prerequisites
 
@@ -200,7 +200,9 @@ Summary:
 | GKE (in-cluster K8s API) | No | Additional `roles/container.admin` binding. Kept as an admin role because no narrower predefined role covers cluster-scoped RBAC, which Helm charts routinely install (cert-manager, external-dns, operators). The tenant project boundary is the blast radius. |
 | Cloud SQL | No | Enumerated verbs, not `roles/cloudsql.admin`. |
 | Memorystore Redis | No | `redis.instances.*`, `redis.operations.*`. |
+| Filestore | No | `file.instances.*`, `file.operations.{get, list}` — shared model-cache NFS share. |
 | Certificate Manager | No | Enumerated verbs. |
+| Network Security | No | `networksecurity.serverTlsPolicies.*`, `networksecurity.operations.*` — ServerTlsPolicy for ingest front-end mTLS. |
 | Vertex AI | No | Prediction/model read only. |
 | Service Networking | No | Peering + read only. |
 

@@ -200,6 +200,15 @@ resource "google_project_iam_custom_role" "unscoped" {
     "redis.operations.get",
     "redis.operations.list",
 
+    # --- Filestore (shared model cache: GLiNER ONNX + Dynamo/TEI workers) ---
+    "file.instances.create",
+    "file.instances.delete",
+    "file.instances.get",
+    "file.instances.list",
+    "file.instances.update",
+    "file.operations.get",
+    "file.operations.list",
+
     # --- Certificate Manager ---
     "certificatemanager.certmapentries.create",
     "certificatemanager.certmapentries.delete",
