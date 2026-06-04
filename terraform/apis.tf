@@ -15,6 +15,7 @@ locals {
     "compute.googleapis.com",              # VPC, subnets, firewall, disks, addresses
     "container.googleapis.com",            # GKE cluster + node pool management
     "dns.googleapis.com",                  # Cloud DNS managed zones
+    "file.googleapis.com",                 # Filestore shared model cache (GLiNER ONNX, Dynamo/TEI)
     "iam.googleapis.com",                  # Service account + custom role management
     "iamcredentials.googleapis.com",       # Service account impersonation
     "logging.googleapis.com",              # Cloud Logging (used by GKE)

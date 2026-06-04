@@ -176,6 +176,15 @@ Used by `databases.tf` to provision a STANDARD_HA Redis 7.0 instance.
 | `redis.instances.{create, get, list, update, delete}` | Instance lifecycle. |
 | `redis.operations.{get, list}` | Polling async ops. |
 
+## Filestore
+
+Used by ent-platform's `dynamo.tf` to provision the shared model-cache Filestore instance (`google_filestore_instance.dynamo`) — an NFS share for the gliner ONNX read path in event-indexer and the Dynamo/TEI GPU workers. Gated on `(dynamo_enabled || gliner_enabled)`; `gliner_enabled` defaults true, so most tenants provision it.
+
+| Permission | Rationale |
+|---|---|
+| `file.instances.{create, get, list, update, delete}` | Filestore instance lifecycle. |
+| `file.operations.{get, list}` | Polling async ops. |
+
 ## Certificate Manager
 
 Used by `certificate-manager.tf` for the managed SSL certificate, DNS authorization, and certificate map/entry binding to the GKE Gateway, and by `client-mtls.tf` for the TrustConfig that backs the ingest LB's ServerTlsPolicy.

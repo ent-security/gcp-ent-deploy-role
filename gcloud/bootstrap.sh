@@ -64,10 +64,12 @@ required_apis=(
   compute.googleapis.com
   container.googleapis.com
   dns.googleapis.com
+  file.googleapis.com
   iam.googleapis.com
   iamcredentials.googleapis.com
   logging.googleapis.com
   monitoring.googleapis.com
+  networksecurity.googleapis.com
   pubsub.googleapis.com
   redis.googleapis.com
   secretmanager.googleapis.com

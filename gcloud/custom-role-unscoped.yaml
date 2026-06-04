@@ -11,6 +11,12 @@ includedPermissions:
   - compute.addresses.list
   - compute.addresses.use
   - compute.addresses.useInternal
+  - compute.backendServices.create
+  - compute.backendServices.delete
+  - compute.backendServices.get
+  - compute.backendServices.list
+  - compute.backendServices.update
+  - compute.backendServices.use
   - compute.diskTypes.get
   - compute.diskTypes.list
   - compute.disks.create
@@ -50,10 +56,22 @@ includedPermissions:
   - compute.globalForwardingRules.update
   - compute.globalOperations.get
   - compute.globalOperations.list
+  - compute.healthChecks.create
+  - compute.healthChecks.delete
+  - compute.healthChecks.get
+  - compute.healthChecks.list
+  - compute.healthChecks.update
+  - compute.healthChecks.use
+  - compute.healthChecks.useReadOnly
   - compute.instanceGroupManagers.get
   - compute.instanceGroupManagers.list
   - compute.machineTypes.get
   - compute.machineTypes.list
+  - compute.networkEndpointGroups.create
+  - compute.networkEndpointGroups.delete
+  - compute.networkEndpointGroups.get
+  - compute.networkEndpointGroups.list
+  - compute.networkEndpointGroups.use
   - compute.networks.addPeering
   - compute.networks.create
   - compute.networks.delete
@@ -92,6 +110,25 @@ includedPermissions:
   - compute.subnetworks.update
   - compute.subnetworks.use
   - compute.subnetworks.useExternalIp
+  - compute.targetHttpProxies.create
+  - compute.targetHttpProxies.delete
+  - compute.targetHttpProxies.get
+  - compute.targetHttpProxies.list
+  - compute.targetHttpProxies.update
+  - compute.targetHttpProxies.use
+  - compute.targetHttpsProxies.create
+  - compute.targetHttpsProxies.delete
+  - compute.targetHttpsProxies.get
+  - compute.targetHttpsProxies.list
+  - compute.targetHttpsProxies.update
+  - compute.targetHttpsProxies.use
+  - compute.urlMaps.create
+  - compute.urlMaps.delete
+  - compute.urlMaps.get
+  - compute.urlMaps.list
+  - compute.urlMaps.update
+  - compute.urlMaps.use
+  - compute.urlMaps.validate
   - compute.zoneOperations.get
   - compute.zoneOperations.list
   - compute.zones.get
@@ -138,6 +175,14 @@ includedPermissions:
   - redis.instances.update
   - redis.operations.get
   - redis.operations.list
+  # Filestore (shared model cache: GLiNER ONNX + Dynamo/TEI workers)
+  - file.instances.create
+  - file.instances.delete
+  - file.instances.get
+  - file.instances.list
+  - file.instances.update
+  - file.operations.get
+  - file.operations.list
   # Certificate Manager
   - certificatemanager.certmapentries.create
   - certificatemanager.certmapentries.delete
@@ -149,6 +194,7 @@ includedPermissions:
   - certificatemanager.certmaps.get
   - certificatemanager.certmaps.list
   - certificatemanager.certmaps.update
+  - certificatemanager.certmaps.use
   - certificatemanager.certs.create
   - certificatemanager.certs.delete
   - certificatemanager.certs.get
@@ -167,6 +213,22 @@ includedPermissions:
   - certificatemanager.operations.delete
   - certificatemanager.operations.get
   - certificatemanager.operations.list
+  - certificatemanager.trustconfigs.create
+  - certificatemanager.trustconfigs.delete
+  - certificatemanager.trustconfigs.get
+  - certificatemanager.trustconfigs.list
+  - certificatemanager.trustconfigs.update
+  - certificatemanager.trustconfigs.use
+  # Network Security (ServerTlsPolicy for ingest front-end mTLS)
+  - networksecurity.operations.get
+  - networksecurity.operations.list
+  - networksecurity.serverTlsPolicies.create
+  - networksecurity.serverTlsPolicies.delete
+  - networksecurity.serverTlsPolicies.get
+  - networksecurity.serverTlsPolicies.getIamPolicy
+  - networksecurity.serverTlsPolicies.list
+  - networksecurity.serverTlsPolicies.update
+  - networksecurity.serverTlsPolicies.use
   # Vertex AI
   - aiplatform.endpoints.predict
   - aiplatform.endpoints.list
