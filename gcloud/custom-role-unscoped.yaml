@@ -259,9 +259,13 @@ includedPermissions:
   - iam.serviceAccounts.list
   - dns.managedZones.create
   - dns.managedZones.list
-  # Role introspection + project IAM read
+  # Role management + project IAM read
+  - iam.roles.create
+  - iam.roles.delete
   - iam.roles.get
   - iam.roles.list
+  - iam.roles.undelete
+  - iam.roles.update
   - resourcemanager.projects.get
   - resourcemanager.projects.getIamPolicy
   - resourcemanager.projects.setIamPolicy

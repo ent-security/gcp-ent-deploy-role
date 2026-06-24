@@ -231,7 +231,7 @@ Used by `databases.tf` for VPC peering that enables private-IP access to Cloud S
 |---|---|
 | `resourcemanager.projects.get` | Reading project metadata (project number, parent). |
 | `resourcemanager.projects.getIamPolicy` | Reading project IAM during refresh. |
-| `iam.roles.get`, `iam.roles.list` | Reading the custom roles this module creates (introspection). |
+| `iam.roles.{create, delete, get, list, undelete, update}` | Creating and managing the custom roles this module and the platform define (e.g. `entExternalCredentialsWriter`), not just introspecting them. |
 
 ## Explicitly NOT granted
 
@@ -240,5 +240,4 @@ Used by `databases.tf` for VPC peering that enables private-IP access to Cloud S
 - `resourcemanager.projects.{create, delete, move, setIamPolicy, update}` — the deployer cannot change the project itself.
 - `billing.*`.
 - `orgpolicy.*`, `accesscontextmanager.*`.
-- `iam.roles.{create, update, delete}` — the deployer cannot modify its own role definitions.
 - Cloud KMS, Cloud Build, Cloud Functions, Cloud Run, App Engine, BigQuery, Dataflow, Cloud Composer.

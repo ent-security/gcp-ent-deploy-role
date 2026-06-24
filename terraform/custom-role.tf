@@ -293,9 +293,13 @@ resource "google_project_iam_custom_role" "unscoped" {
     "dns.managedZones.create",
     "dns.managedZones.list",
 
-    # --- Custom role management (so the deployer can introspect this role) ---
+    # --- Custom role management (deployer creates & manages this module's and the platform's custom roles) ---
+    "iam.roles.create",
+    "iam.roles.delete",
     "iam.roles.get",
     "iam.roles.list",
+    "iam.roles.undelete",
+    "iam.roles.update",
 
     # --- Resource Manager (reading project-level IAM) ---
     "resourcemanager.projects.get",
