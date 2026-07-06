@@ -62,7 +62,7 @@ versioned with a **single repo-wide semver**.
 1. **Scope:** single repo-wide version — one tag `vX.Y.Z`, one CHANGELOG, one
    release PR.
 2. **Baseline (Option B):** seed `version.txt` and the manifest at `1.0.0` anchored
-   at current `main` HEAD (`8ee884bd58ca4cc9f4287df60054f50849db5706`), **and** cut
+   at current `main` HEAD (`0188115b76df7c25b9795fbe5804a22d88429d2a`), **and** cut
    a real `v1.0.0` tag + GitHub Release at that same SHA as an operator step. This
    makes the README's `ref=v1.0.0` real and gives release-please a clean floor.
    The next Conventional-Commit PR after this lands drives the first *managed*
@@ -111,7 +111,7 @@ baseline anchor.
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "release-type": "simple",
   "include-component-in-tag": false,
-  "last-release-sha": "8ee884bd58ca4cc9f4287df60054f50849db5706",
+  "last-release-sha": "0188115b76df7c25b9795fbe5804a22d88429d2a",
   "changelog-sections": [
     { "type": "feat", "section": "Features" },
     { "type": "fix", "section": "Bug Fixes" },
@@ -312,10 +312,10 @@ to function.
    once the workflow has run on a PR). If the repo uses Rulesets, do the same under
    Settings → Rules → Rulesets.
 4. **Cut `v1.0.0` (Option B).** Create the tag + GitHub Release at
-   `8ee884bd58ca4cc9f4287df60054f50849db5706` (current `main` HEAD, the same SHA as
+   `0188115b76df7c25b9795fbe5804a22d88429d2a` (current `main` HEAD, the same SHA as
    `last-release-sha`), e.g.:
    ```bash
-   gh release create v1.0.0 --target 8ee884bd58ca4cc9f4287df60054f50849db5706 \
+   gh release create v1.0.0 --target 0188115b76df7c25b9795fbe5804a22d88429d2a \
      --title "v1.0.0" --notes "Initial tagged release of the Ent GCP deploy role."
    ```
    Anchoring the tag to the same SHA as `last-release-sha` keeps release-please's
