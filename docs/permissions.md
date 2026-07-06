@@ -233,11 +233,22 @@ Used by `databases.tf` for VPC peering that enables private-IP access to Cloud S
 | `resourcemanager.projects.getIamPolicy` | Reading project IAM during refresh. |
 | `iam.roles.{create, delete, get, list, undelete, update}` | Creating and managing the custom roles this module and the platform define (e.g. `entExternalCredentialsWriter`), not just introspecting them. |
 
+## API Keys
+
+Used by `platform-monitoring` (`opencost.tf`, ent-platform #4199) to provision a Cloud
+Billing-restricted API key for OpenCost's on-demand pricing provider, which panics
+`Supply a GCP Key to start getting data` without one. Workload Identity / ADC alone does
+not satisfy the GCP pricing provider.
+
+| Permission | Rationale |
+|---|---|
+| `apikeys.keys.{create, delete, get, getKeyString, list, undelete, update}` | Lifecycle of `google_apikeys_key.opencost_pricing`; `getKeyString` lets the apply read `.key_string` into the `opencost-gcp-pricing` Secret. Key is restricted to `cloudbilling.googleapis.com`. |
+
 ## Explicitly NOT granted
 
 - `roles/owner`, `roles/editor`, any predefined `*.admin` role.
 - `serviceusage.services.{enable, disable}` — the module enables APIs at bootstrap; the deployer cannot change API state.
 - `resourcemanager.projects.{create, delete, move, setIamPolicy, update}` — the deployer cannot change the project itself.
-- `billing.*`.
+- `billing.*` — the deployer manages the API *key* (`apikeys.*`, restricted to the Cloud Billing API) but has no Cloud Billing account IAM.
 - `orgpolicy.*`, `accesscontextmanager.*`.
 - Cloud KMS, Cloud Build, Cloud Functions, Cloud Run, App Engine, BigQuery, Dataflow, Cloud Composer.
