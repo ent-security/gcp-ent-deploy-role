@@ -9,8 +9,10 @@
 locals {
   required_apis = [
     "aiplatform.googleapis.com",           # Vertex AI for embeddings and model inference
+    "apikeys.googleapis.com",              # API Keys API (create/manage API keys)
     "artifactregistry.googleapis.com",     # Container image repositories
     "certificatemanager.googleapis.com",   # Managed SSL certificates
+    "cloudbilling.googleapis.com",         # Cloud Billing API (project billing info)
     "cloudresourcemanager.googleapis.com", # Project-level IAM bindings
     "compute.googleapis.com",              # VPC, subnets, firewall, disks, addresses
     "container.googleapis.com",            # GKE cluster + node pool management

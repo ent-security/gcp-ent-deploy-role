@@ -58,8 +58,10 @@ done
 
 required_apis=(
   aiplatform.googleapis.com
+  apikeys.googleapis.com
   artifactregistry.googleapis.com
   certificatemanager.googleapis.com
+  cloudbilling.googleapis.com
   cloudresourcemanager.googleapis.com
   compute.googleapis.com
   container.googleapis.com
