@@ -271,3 +271,11 @@ includedPermissions:
   - resourcemanager.projects.setIamPolicy
   - serviceusage.services.get
   - serviceusage.services.list
+  # API Keys (OpenCost Cloud Billing pricing key — ent-platform #4199 / PLA-2964)
+  - apikeys.keys.create
+  - apikeys.keys.delete
+  - apikeys.keys.get
+  - apikeys.keys.getKeyString
+  - apikeys.keys.list
+  - apikeys.keys.undelete
+  - apikeys.keys.update
