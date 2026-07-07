@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Titles must pass the required "lint-pr-title" check. "deps" is an allowed
+    # Conventional Commit type and maps to the "Dependencies" changelog section.
+    commit-message:
+      prefix: "deps"
+    # One grouped PR per week for all action bumps (fewer PRs to review under the
+    # 1-approval rule) — keeps the SHA pins current without noise.
+    groups:
+      actions:
+        patterns:
+          - "*"
