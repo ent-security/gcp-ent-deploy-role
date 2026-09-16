@@ -8,7 +8,7 @@ permissions: {}
 
 jobs:
   release-please:
-    uses: ent-security/ent-actions/.github/workflows/release-please.yml@04d7c7176429d7d505f0d119d0c1e5044f6f41b6 # TODO: switch to @release-please-v1 once ent-security/ent-actions#11 is merged and tagged
+    uses: ent-security/ent-actions/.github/workflows/release-please.yml@release-please-v1
     permissions:
       contents: write          # create the release commit, tag, and GitHub Release
       pull-requests: write      # open/update the release PR
