@@ -244,6 +244,17 @@ not satisfy the GCP pricing provider.
 |---|---|
 | `apikeys.keys.{create, delete, get, getKeyString, list, undelete, update}` | Lifecycle of `google_apikeys_key.opencost_pricing`; `getKeyString` lets the apply read `.key_string` into the `opencost-gcp-pricing` Secret. Key is restricted to `cloudbilling.googleapis.com`. |
 
+## Logging
+
+Used by `platform` (`databases.tf`, ent-platform #5206) to define the log-based counter
+`google_logging_metric.postgres_slow_query` over Cloud SQL slow-statement logs. A
+platform-monitoring exporter reads it and forwards it to Home, where `PostgresSlowQueries` is
+evaluated. Log-based metrics do not support resource-name IAM conditions, so these are unscoped.
+
+| Permission | Rationale |
+|---|---|
+| `logging.logMetrics.{create, delete, get, list, update}` | Lifecycle of `google_logging_metric.postgres_slow_query`. No sink, exclusion, bucket or log-read permissions. |
+
 ## Explicitly NOT granted
 
 - `roles/owner`, `roles/editor`, any predefined `*.admin` role.
