@@ -318,6 +318,13 @@ resource "google_project_iam_custom_role" "unscoped" {
     "apikeys.keys.list",
     "apikeys.keys.undelete",
     "apikeys.keys.update",
+
+    # --- Logging (postgres slow-query log-based metric — ent-platform #5206 / PLA-4123) ---
+    "logging.logMetrics.create",
+    "logging.logMetrics.delete",
+    "logging.logMetrics.get",
+    "logging.logMetrics.list",
+    "logging.logMetrics.update",
   ]
 }
 
