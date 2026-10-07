@@ -69,6 +69,7 @@ resource "google_project_iam_custom_role" "unscoped" {
     "compute.globalAddresses.deleteInternal",
     "compute.globalAddresses.get",
     "compute.globalAddresses.list",
+    "compute.globalAddresses.setLabels",
     "compute.globalAddresses.use",
     "compute.globalForwardingRules.create",
     "compute.globalForwardingRules.pscCreate",
