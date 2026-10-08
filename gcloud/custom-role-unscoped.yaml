@@ -166,6 +166,7 @@ includedPermissions:
   - cloudsql.sslCerts.list
   - cloudsql.users.create
   - cloudsql.users.delete
+  - cloudsql.users.get
   - cloudsql.users.list
   - cloudsql.users.update
   # Memorystore Redis
