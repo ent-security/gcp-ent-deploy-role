@@ -18,8 +18,10 @@ includedPermissions:
   - storage.objects.update
   # Secret Manager (per-secret)
   - secretmanager.secrets.delete
+  - secretmanager.secrets.enableManagedRotation
   - secretmanager.secrets.get
   - secretmanager.secrets.getIamPolicy
+  - secretmanager.secrets.rotate
   - secretmanager.secrets.setIamPolicy
   - secretmanager.secrets.update
   - secretmanager.versions.access
