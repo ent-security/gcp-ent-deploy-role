@@ -27,7 +27,9 @@ Used by ent-platform's `deploy/tofu/gcp/platform/storage.tf`, `opensearch.tf`, a
 
 ## Secret Manager
 
-Used by `secrets.tf` to provision the database master password secret.
+Used by `secrets.tf` to provision the Cloud SQL `postgres` credentials secret, and by Home's `GkeDbSetup`
+step to enable its managed rotation (ent-platform PLA-8009). The secret is regional; its name ends
+in `/secrets/<name>` like a global secret's, so the same name-prefix condition scopes it.
 
 | Permission | Scoped? | Used for |
 |---|---|---|
@@ -35,6 +37,8 @@ Used by `secrets.tf` to provision the database master password secret.
 | `secretmanager.secrets.list` | No | Plan refresh. |
 | `secretmanager.secrets.get` | Yes | Reading secret metadata. |
 | `secretmanager.secrets.update` | Yes | Updating secret labels or rotation config. |
+| `secretmanager.secrets.enableManagedRotation` | Yes | Binding the credentials secret to the Cloud SQL `postgres` user. |
+| `secretmanager.secrets.rotate` | Yes | Reactivating the credentials secret's rotation after a failed rotation. |
 | `secretmanager.secrets.delete` | Yes | Destroy. |
 | `secretmanager.secrets.getIamPolicy` | Yes | Reading secret IAM. |
 | `secretmanager.secrets.setIamPolicy` | Yes | Granting `roles/secretmanager.secretAccessor` to the app SA. |
@@ -163,7 +167,7 @@ Used by `databases.tf` via the `terraform-google-modules/sql-db` module to provi
 |---|---|
 | `cloudsql.instances.{create, get, list, update, delete, failover, restart}` | Instance lifecycle. |
 | `cloudsql.databases.{create, get, list, update, delete}` | DB creation inside the instance. |
-| `cloudsql.users.{create, delete, list, update}` | Creating the application user. |
+| `cloudsql.users.{create, delete, get, list, update}` | Creating the application user; `get` lets Home enable managed rotation of the `postgres` user. |
 | `cloudsql.sslCerts.{create, delete, get, list}` | SSL certificate rotation. |
 | `cloudsql.backupRuns.{create, delete, get, list}` | Backup management. |
 

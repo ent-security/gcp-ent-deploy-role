@@ -189,6 +189,7 @@ resource "google_project_iam_custom_role" "unscoped" {
     "cloudsql.sslCerts.list",
     "cloudsql.users.create",
     "cloudsql.users.delete",
+    "cloudsql.users.get",
     "cloudsql.users.list",
     "cloudsql.users.update",
 
@@ -355,8 +356,10 @@ resource "google_project_iam_custom_role" "scoped" {
 
     # --- Secret Manager (per-secret) ---
     "secretmanager.secrets.delete",
+    "secretmanager.secrets.enableManagedRotation",
     "secretmanager.secrets.get",
     "secretmanager.secrets.getIamPolicy",
+    "secretmanager.secrets.rotate",
     "secretmanager.secrets.setIamPolicy",
     "secretmanager.secrets.update",
     "secretmanager.versions.access",
