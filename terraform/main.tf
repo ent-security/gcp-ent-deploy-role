@@ -25,6 +25,8 @@ resource "google_iam_workload_identity_pool" "ent_home" {
   display_name              = "Ent Home AWS Pool"
   description               = "Allows Ent Home on AWS to deploy tenant infrastructure into this GCP project."
   disabled                  = false
+
+  depends_on = [google_project_service.required]
 }
 
 resource "google_iam_workload_identity_pool_provider" "aws" {
@@ -73,6 +75,8 @@ resource "google_service_account" "ent_home_deployer" {
   account_id   = var.deployer_sa_id
   display_name = "Ent Home Deployer"
   description  = "Service account Ent Home impersonates to deploy tenant infrastructure."
+
+  depends_on = [google_project_service.required]
 }
 
 # Allow each federated AWS role to impersonate the deployer SA. Callers must
@@ -117,6 +121,8 @@ resource "google_project_iam_member" "deployer_container_admin" {
   project = var.project_id
   role    = "roles/container.admin"
   member  = local.deployer_sa_member
+
+  depends_on = [google_project_service.required]
 }
 
 resource "google_project_iam_member" "deployer_scoped_storage" {
