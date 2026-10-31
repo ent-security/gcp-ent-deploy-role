@@ -34,6 +34,8 @@ locals {
   ]
 }
 
+# On a fresh project nothing is enabled yet, so resources that call a project API
+# without referencing another resource here depend on these explicitly.
 resource "google_project_service" "required" {
   for_each = var.enable_apis ? toset(local.required_apis) : toset([])
 

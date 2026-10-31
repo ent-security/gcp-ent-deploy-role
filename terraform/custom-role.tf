@@ -25,6 +25,8 @@ resource "google_project_iam_custom_role" "unscoped" {
   description = "Permissions for Ent Home to manage GCP services whose IAM does not support resource-name conditions. Granted unconditionally at the project level."
   stage       = "GA"
 
+  depends_on = [google_project_service.required]
+
   permissions = [
     # --- Compute: networks, subnets, firewalls, disks, addresses ---
     "compute.addresses.create",
@@ -338,6 +340,8 @@ resource "google_project_iam_custom_role" "scoped" {
   title       = "Ent Home Deployer (Scoped)"
   description = "Permissions for Ent Home to manage Ent-prefixed resources in services that support IAM resource-name conditions. Bound conditionally, one binding per service."
   stage       = "GA"
+
+  depends_on = [google_project_service.required]
 
   permissions = [
     # --- Cloud Storage (per-bucket and per-object) ---
