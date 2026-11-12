@@ -51,6 +51,7 @@ includedPermissions:
   - compute.globalForwardingRules.create
   - compute.globalForwardingRules.pscCreate
   - compute.globalForwardingRules.delete
+  - compute.globalForwardingRules.pscDelete
   - compute.globalForwardingRules.get
   - compute.globalForwardingRules.list
   - compute.globalForwardingRules.setLabels
@@ -66,6 +67,7 @@ includedPermissions:
   - compute.healthChecks.useReadOnly
   - compute.instanceGroupManagers.get
   - compute.instanceGroupManagers.list
+  - compute.instances.use
   - compute.machineTypes.get
   - compute.machineTypes.list
   - compute.networkEndpointGroups.create
