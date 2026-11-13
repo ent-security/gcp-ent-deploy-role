@@ -12,6 +12,7 @@ locals {
     "apikeys.googleapis.com",              # API Keys API (create/manage API keys)
     "artifactregistry.googleapis.com",     # Container image repositories
     "certificatemanager.googleapis.com",   # Managed SSL certificates
+    "cloudasset.googleapis.com",           # Cloud Asset Inventory (decommission residue check)
     "cloudbilling.googleapis.com",         # Cloud Billing API (project billing info)
     "cloudresourcemanager.googleapis.com", # Project-level IAM bindings
     "compute.googleapis.com",              # VPC, subnets, firewall, disks, addresses
