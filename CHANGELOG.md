@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.4](https://github.com/ent-security/gcp-ent-deploy-role/compare/v1.0.3...v1.0.4) (2026-11-12)
+
+
+### Bug Fixes
+
+* **role:** allow deleting NEGs and the PSC forwarding rule ([#24](https://github.com/ent-security/gcp-ent-deploy-role/issues/24)) ([a8b1885](https://github.com/ent-security/gcp-ent-deploy-role/commit/a8b18857b2c306af9987ea0d82fa78effd19cb90))
+
+
+### Dependencies
+
+* bump actions/create-github-app-token from 3.2.0 to 3.3.0 in the actions group across 1 directory ([#20](https://github.com/ent-security/gcp-ent-deploy-role/issues/20)) ([2ed4e46](https://github.com/ent-security/gcp-ent-deploy-role/commit/2ed4e46860836eefaa832b78445d0e35604f6a8a))
+* bump amannn/action-semantic-pull-request from 6.1.1 to 6.1.2 in the actions group ([#23](https://github.com/ent-security/gcp-ent-deploy-role/issues/23)) ([9ab20fe](https://github.com/ent-security/gcp-ent-deploy-role/commit/9ab20feb91c363bdfb1d87500d63dc735550dae0))
+
 ## [1.0.3](https://github.com/ent-security/gcp-ent-deploy-role/compare/v1.0.2...v1.0.3) (2026-10-31)
 
 
