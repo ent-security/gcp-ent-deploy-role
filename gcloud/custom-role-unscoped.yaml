@@ -289,3 +289,6 @@ includedPermissions:
   - logging.logMetrics.get
   - logging.logMetrics.list
   - logging.logMetrics.update
+
+  # Cloud Asset Inventory (decommission residue check: searchAllResources)
+  - cloudasset.assets.searchAllResources

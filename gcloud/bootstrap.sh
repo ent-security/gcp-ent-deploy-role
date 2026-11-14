@@ -61,6 +61,7 @@ required_apis=(
   apikeys.googleapis.com
   artifactregistry.googleapis.com
   certificatemanager.googleapis.com
+  cloudasset.googleapis.com
   cloudbilling.googleapis.com
   cloudresourcemanager.googleapis.com
   compute.googleapis.com

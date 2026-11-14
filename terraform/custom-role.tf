@@ -331,6 +331,9 @@ resource "google_project_iam_custom_role" "unscoped" {
     "logging.logMetrics.get",
     "logging.logMetrics.list",
     "logging.logMetrics.update",
+
+    # --- Cloud Asset Inventory (decommission residue check: searchAllResources) ---
+    "cloudasset.assets.searchAllResources",
   ]
 }
 
