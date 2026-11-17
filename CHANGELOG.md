@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/ent-security/gcp-ent-deploy-role/compare/v1.0.4...v1.0.5) (2026-11-14)
+
+
+### Bug Fixes
+
+* **role:** enable Cloud Asset and allow searchAllResources for the decommission residue check ([#25](https://github.com/ent-security/gcp-ent-deploy-role/issues/25)) ([4cc1e07](https://github.com/ent-security/gcp-ent-deploy-role/commit/4cc1e07b052e80b732a27144e13b840f6bd62a2b))
+
 ## [1.0.4](https://github.com/ent-security/gcp-ent-deploy-role/compare/v1.0.3...v1.0.4) (2026-11-12)
 
 
